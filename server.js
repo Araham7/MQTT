@@ -1,14 +1,8 @@
-const dotenv = require("dotenv");
-const aedes = require("aedes")();
-const server = require("net").createServer(aedes.handle);
-
-dotenv.config();
-
-const port = process.env.PORT || 1885;
-
-server.listen(port, function () {
-  console.log(`🚀 MQTT broker running on port ${port}`);
-});
+// Required packages
+const aedes = require("aedes")(); // MQTT broker
+const http = require("http"); // HTTP server for Render
+const ws = require("websocket-stream"); // WebSockets support
+const port = process.env.PORT || 1885; // Use Render's port or default to 1885
 
 // 🔐 Hardcoded authentication credentials
 const USERS = {
@@ -34,22 +28,42 @@ aedes.authenticate = function (client, username, password, callback) {
   }
 };
 
-// 🎯 Debugging Events
-aedes.on("client", (client) => console.log(`🔗 Client connected: ${client.id}`));
-aedes.on("clientDisconnect", (client) => console.log(`🔌 Client disconnected: ${client.id}`));
+// Create an HTTP server
+const server = http.createServer();
 
+// Attach WebSockets to the HTTP server and handle MQTT connections
+ws.createServer({ server: server }, aedes.handle);
+
+// Start the server
+server.listen(port, () => {
+  console.log(`MQTT server is running on ws://localhost:${port}`);
+});
+
+// Log client connections
+aedes.on("client", (client) => {
+  console.log(`✅ Client connected: ${client.id}`);
+});
+
+// Log client disconnections
+aedes.on("clientDisconnect", (client) => {
+  console.log(`❌ Client disconnected: ${client.id}`);
+});
+
+// Log published messages
 aedes.on("publish", (packet, client) => {
   if (client) {
-    console.log(`📩 Message from ${client.id}: ${packet.payload.toString()}`);
+    console.log(`📤 Message from ${client.id} on topic ${packet.topic}: ${packet.payload.toString()}`);
   }
 });
 
+// Log client subscriptions
 aedes.on("subscribe", (subscriptions, client) => {
   if (client) {
     console.log(`📡 Client ${client.id} subscribed to: ${subscriptions.map((s) => s.topic).join(", ")}`);
   }
 });
 
+// Log client unsubscriptions
 aedes.on("unsubscribe", (topics, client) => {
   if (client) {
     console.log(`🚫 Client ${client.id} unsubscribed from: ${topics.join(", ")}`);
