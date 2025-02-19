@@ -4,11 +4,13 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "server.js"
+    "test": "ndemon server.js"
   },
   "author": "Araham",
   "license": "ISC",
   "dependencies": {
-    "aedes": "^0.51.3"
+    "aedes": "^0.51.3",
+    "dotenv": "^16.4.7",
+    "nodemon": "^3.1.9"
   }
 }
