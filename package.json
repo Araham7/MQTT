@@ -1,0 +1,14 @@
+{
+  "name": "mqtt",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "server.js"
+  },
+  "author": "Araham",
+  "license": "ISC",
+  "dependencies": {
+    "aedes": "^0.51.3"
+  }
+}
